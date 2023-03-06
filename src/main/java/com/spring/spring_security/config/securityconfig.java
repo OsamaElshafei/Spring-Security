@@ -1,4 +1,5 @@
 package com.spring.spring_security.config;
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,10 +10,17 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
+
 @Configuration
 public class securityconfig extends WebSecurityConfigurerAdapter{
 
@@ -27,7 +35,19 @@ public class securityconfig extends WebSecurityConfigurerAdapter{
                 .and().formLogin().and().httpBasic();*/
         /*http.authorizeRequests().anyRequest().denyAll()
                 .and().formLogin().and().httpBasic();*/
-        http.authorizeRequests()
+        http.cors().configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration() ;
+                config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                config.setAllowedMethods(Collections.singletonList("*"));
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                config.setMaxAge(2500L);
+                return config;
+            }
+        }).and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                .authorizeRequests()
                 .antMatchers("/engineer/*").authenticated()
                 .antMatchers("/about/*").authenticated()
                 .antMatchers("/connect/*").authenticated()
@@ -59,7 +79,7 @@ public class securityconfig extends WebSecurityConfigurerAdapter{
     */
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 }
 
