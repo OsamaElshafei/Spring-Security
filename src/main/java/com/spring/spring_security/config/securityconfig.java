@@ -49,8 +49,8 @@ public class securityconfig extends WebSecurityConfigurerAdapter{
         }).and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
                 .authorizeRequests()
                 .antMatchers("/engineer/*").authenticated()
-                .antMatchers("/about/*").authenticated()
-                .antMatchers("/connect/*").authenticated()
+                .antMatchers("/about/*").hasAuthority("edit")
+                .antMatchers("/connect/*").hasAuthority("write")
                 .antMatchers("/foot/*").permitAll()
                 .and().formLogin().and().httpBasic();
     }

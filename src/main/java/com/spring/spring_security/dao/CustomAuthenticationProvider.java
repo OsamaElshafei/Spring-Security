@@ -1,5 +1,6 @@
 package com.spring.spring_security.dao;
 
+import com.spring.spring_security.model.Authority;
 import com.spring.spring_security.model.Subscriber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -34,17 +35,26 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("valiad user name");
         } else {
             if (passwordEncoder.matches(password, subscriberList.get(0).getPassword())) {
-                List<GrantedAuthority> authorityList = new ArrayList<>();
-                authorityList.add(new SimpleGrantedAuthority(subscriberList.get(0).getRole()));
-                return new UsernamePasswordAuthenticationToken(name, password, authorityList);
+               // List<GrantedAuthority> authorityList = new ArrayList<>();
+               // authorityList.add(new SimpleGrantedAuthority(subscriberList.get(0).getRole()));
+                return new UsernamePasswordAuthenticationToken(name, password,getauthority(subscriberList.get(0).getAuthorities()));
             } else {
                 throw new BadCredentialsException("Invalid Password");
             }
         }
+    }
+    private List<SimpleGrantedAuthority>getauthority(List<Authority> authorityList){
+        List<SimpleGrantedAuthority> simpleGrantedAuthorities=new ArrayList<>();
+        for(Authority authority:authorityList){
+            simpleGrantedAuthorities.add(new SimpleGrantedAuthority(authority.getName()));
+        }
+        return simpleGrantedAuthorities;
+
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
      return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
+
 }
